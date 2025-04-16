@@ -1,0 +1,156 @@
+/* Enhanced scratch.css - Custom Styles for My Passion For Movies */
+/* This updated version maintains all required functionality while adding enhancements for a more fun and professional look */
+
+/* 1. Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Courier', monospace;
+  /* A cinematic gradient background that gives a subtle, stylish movie feel */
+  background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  color: #f39c12;  /* Keeping the vibrant movie orange for text */
+  text-align: center;
+  line-height: 1.6;
+}
+
+/* 2. Navigation Styles */
+.nav {
+  background-color: #575252;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);  /* Adds depth to the nav bar */
+}
+.nav a {
+  color: #f39c12;
+  font-family: 'Courier';
+  font-size: 24px !important;
+  text-decoration: none;
+  margin: 0 15px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+.nav a:hover {
+  text-decoration: underline;
+  color: #ffce54;  /* A lighter, warm tone on hover */
+  transform: scale(1.05);
+}
+
+/* 3. Header and Title Styles */
+.header-movie {
+  background-color: #000;
+  color: #f1c40f;
+  font-family: 'Courier';
+  padding: 20px;
+  text-align: center;
+  border-bottom: 3px solid #f1c40f;
+}
+header.section {
+  padding: 40px 20px;
+  position: relative;
+}
+header.section h1 {
+  font-size: 2.8em;
+  margin-bottom: 10px;
+  /* Subtle text-shadow for a cinematic glow */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+header.section p {
+  font-size: 1.2em;
+}
+
+/* 4. Footer Styles */
+.footer-movie {
+  background-color: #03fb39;
+  color: #8a05fe;
+  text-align: center;
+  padding: 15px;
+  font-family: 'Courier New', monospace;
+}
+
+/* 5. Underlined Section Headings */
+.underline {
+  border-bottom: 2px solid #fc0202;
+  padding-bottom: 5px;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+
+/* 6. Content Blocks for Layout */
+
+/* Wrapper for a header section or banner with a movie poster background */
+.header-container {
+  width: 100%;
+  background: url("assets/img/header_movie_bg.jpg") no-repeat center center;
+  background-size: cover;
+  padding: 40px 20px;
+  color: #ff0586;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Main content container using flex layout for columns */
+.main-content {
+  display: flex;
+  flex-wrap: wrap;
+  max-width: 960px;
+  margin: 20px auto;
+  justify-content: center;
+}
+
+/* 7. Additional Utility Classes */
+
+/* Video container preserves aspect ratio and now has a subtle drop shadow */
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  margin: 20px auto;
+  max-width: 800px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Tableau embed container for interactive graphs with a drop shadow */
+.tableauContainer {
+  margin: 20px auto;
+  max-width: 800px;
+  height: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* 8. Embedded lists styling for our nested lists */
+.embedded-list ol {
+  text-align: left;
+  display: inline-block;
+  margin: 0 auto;
+  padding-left: 20px;
+}
+.embedded-list ul {
+  text-align: left;
+  padding-left: 20px;
+}
+
+/* 9. Additional Div Styling for Generic Content Blocks */
+.content {
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  margin: 20px auto;
+  max-width: 960px;
+  border-radius: 10px;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+}
+.sidebar {
+  background-color: #333;
+  color: #fff;
+  padding: 15px;
+  margin: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.7);
+}

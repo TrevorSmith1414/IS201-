@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Number Guessing Game</title>
+  <style>
+    /* Overall Body and Container Styling */
+    body {
+      background: linear-gradient(135deg, #74ABE2, #5563DE);
+      font-family: Arial, sans-serif;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .game-container {
+      background-color: rgba(0, 0, 0, 0.5);
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 90%;
+      max-width: 400px;
+    }
+    /* Counters styling */
+    #counters {
+      margin-bottom: 15px;
+      font-size: 16px;
+      font-weight: bold;
+    }
+    /* Styling for the input and buttons */
+    input[type="number"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 60px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #f4c20d;
+      border-radius: 5px;
+      transition: background 0.3s ease;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #e0b20c;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 18px;
+    }
+    /* Back link styling */
+    .back-link {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .back-link a {
+      color: #fff;
+      font-size: 16px;
+      text-decoration: none;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-container">
+    <h1>Number Guessing Game</h1>
+    
+    <!-- Streak and High Score counters -->
+    <div id="counters">Current Streak: 0 | High Score: 0</div>
+    
+    <p>Guess a number between 1 and 10.</p>
+    
+    <div>
+      <input type="number" id="guessInput" min="1" max="5" placeholder="Your guess">
+      <button id="guessButton">Guess</button>
+    </div>
+    
+    <div id="result"></div>
+    
+    <!-- Reset button (hidden until needed) -->
+    <button id="resetButton" style="display: none;">Play Again</button>
+  </div>
+  
+  <!-- Back link to the scratch page -->
+  <div class="back-link">
+    <a href="scratch.html">← Back to Scratch</a>
+  </div>
+  
+  <script>
+    // Game state variables
+    let secretNumber = Math.floor(Math.random() * 10) + 1;
+    let currentStreak = 0;
+    let highScore = 0;
+    let firstTry = true;  // Flag to check if it's the player's first guess this round
+
+    // Comment arrays
+    const correctComments = ["Are you a mind reader?", "How did you know?", "You got it!"];
+    const incorrectComments = ["Not today!", "So close!", "Is that the best you can do?"];
+
+    // DOM element references
+    const guessInput  = document.getElementById("guessInput");
+    const guessButton = document.getElementById("guessButton");
+    const result      = document.getElementById("result");
+    const resetButton = document.getElementById("resetButton");
+    const counters    = document.getElementById("counters");
+
+    // Update the display for streak and high score
+    function updateCounters() {
+      counters.textContent = "Current Streak: " + currentStreak + " | High Score: " + highScore;
+    }
+
+    // Function to handle the guessing process
+    guessButton.addEventListener("click", function(){
+      const guess = parseInt(guessInput.value, 10);
+
+      // Validate input
+      if (isNaN(guess) || guess < 1 || guess > 10) {
+        result.textContent = "Please enter a valid number between 1 and 10.";
+        return;
+      }
+
+      // Check the user's guess against the secret number
+      if (guess === secretNumber) {
+        const randomIndex = Math.floor(Math.random() * correctComments.length);
+        const correctMessage = correctComments[randomIndex];
+
+        // Increase streak if guessed correctly on first try; otherwise, reset it.
+        if (firstTry) {
+          currentStreak++;
+        } else {
+          currentStreak = 0;
+        }
+        if (currentStreak > highScore) {
+          highScore = currentStreak;
+        }
+        result.textContent = correctMessage;
+        guessButton.disabled = true;
+        resetButton.style.display = "inline-block";
+        updateCounters();
+      } else {
+        // Wrong guess: mark that the first guess is now lost.
+        firstTry = false;
+        const randomIndex = Math.floor(Math.random() * incorrectComments.length);
+        const incorrectMessage = incorrectComments[randomIndex];
+        // Provide directional feedback in addition to the random comment.
+        result.textContent = (guess < secretNumber ? "Too low! " : "Too high! ") + incorrectMessage;
+      }
+    });
+
+    // Reset game functionality for a new round
+    resetButton.addEventListener("click", function() {
+      secretNumber = Math.floor(Math.random() * 10) + 1;
+      firstTry = true;
+      guessButton.disabled = false;
+      guessInput.value = "";
+      result.textContent = "";
+      resetButton.style.display = "none";
+    });
+  </script>
+</body>
+</html>

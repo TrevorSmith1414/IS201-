@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Web App: Flappy Bird Game</title>
+  <style>
+    /* Overall page styling */
+    body {
+      background: #70c5ce; /* Blue/teal background for the html page */
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    /* Wrapper for the game canvas and high score board */
+    .game-wrapper {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    /* Canvas styling */
+    #gameCanvas {
+      border: 2px solid #000;
+      background: none; /* The game's background is drawn via JavaScript */
+      display: block;
+    }
+    /* High Score Board styling */
+    .high-score-board {
+      margin-left: 20px;
+      padding: 10px;
+      border: 2px solid #000;
+      background: #fff;
+      width: 200px;
+      text-align: center;
+      color: #000;
+      font-family: Arial, sans-serif;
+    }
+    .high-score-board h2 {
+      margin-top: 0;
+    }
+    /* Back link styling with a larger font size */
+    .back-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .back-link a {
+      color: #000;
+      text-decoration: none;
+      font-size: 24px; /* Increased font size */
+      font-weight: bold;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="game-wrapper">
+    <!-- Game Canvas -->
+    <canvas id="gameCanvas" width="600" height="800"></canvas>
+    <!-- High Score Board -->
+    <div class="high-score-board">
+      <h2>All-Time High Score</h2>
+      <p id="allTimeHighScore">0</p>
+    </div>
+  </div>
+  
+  <!-- Back link to scratch.html -->
+  <div class="back-link">
+    <a href="index.html">← Back to Scratch-Page</a>
+  </div>
+
+  <!-- Back link to index.html -->
+  <div class="back-link">
+    <a href="resume.html">← Back to Resume Page</a>
+  </div>
+  
+  <script>
+    // Get canvas context and define game constants.
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const GAME_WIDTH = canvas.width;
+    const GAME_HEIGHT = canvas.height;
+
+    // Game state variables.
+    let gameStarted = false;
+    let gameOver = false;
+
+    // Bird configuration.
+    let bird = {
+      x: 50,
+      y: GAME_HEIGHT / 2,
+      radius: 15,
+      velocity: 0,
+      gravity: 0.3,
+      jump: -7
+    };
+
+    // Array to store pipes; each pipe has its x coordinate, top height, and flag.
+    let pipes = [];
+    const pipeWidth = 60;
+    const gapHeight = 200; // Gap between pipes
+    const pipeSpeed = 2;
+    let frameCount = 0;
+    let score = 0;
+
+    // Function to spawn a new pipe pair.
+    function spawnPipe() {
+      let topHeight = Math.floor(Math.random() * (GAME_HEIGHT - gapHeight - 100)) + 50;
+      pipes.push({ x: GAME_WIDTH, topHeight: topHeight, passed: false });
+    }
+
+    // Resets game variables.
+    function resetGame() {
+      bird.y = GAME_HEIGHT / 2;
+      bird.velocity = 0;
+      pipes = [];
+      score = 0;
+      frameCount = 0;
+      gameOver = false;
+    }
+
+    // Update high score board using localStorage.
+    function updateHighScoreBoard() {
+      let savedHighScore = parseInt(localStorage.getItem("flappyHighScore") || "0", 10);
+      if (score > savedHighScore) {
+        localStorage.setItem("flappyHighScore", score);
+        savedHighScore = score;
+      }
+      document.getElementById("allTimeHighScore").innerText = savedHighScore;
+    }
+
+    // Spacebar event listener.
+    document.addEventListener('keydown', function(e) {
+      if (e.code === "Space") {
+        if (!gameStarted) {
+          gameStarted = true;
+        }
+        if (gameOver) {
+          resetGame();
+        }
+        if (gameStarted && !gameOver) {
+          bird.velocity = bird.jump;
+        }
+      }
+    });
+
+    // Collision detection.
+    function checkCollision(pipe) {
+      if (bird.x + bird.radius > pipe.x && bird.x - bird.radius < pipe.x + pipeWidth) {
+        if (bird.y - bird.radius < pipe.topHeight || bird.y + bird.radius > pipe.topHeight + gapHeight) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    // Main game loop.
+    function update() {
+      // Draw game background as black.
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+      
+      // Update high score board.
+      updateHighScoreBoard();
+
+      // Start screen.
+      if (!gameStarted) {
+        ctx.fillStyle = 'yellow';
+        ctx.beginPath();
+        ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
+        ctx.font = '30px Arial';
+        ctx.fillText('Press Space to Start', GAME_WIDTH / 8, GAME_HEIGHT / 2);
+        requestAnimationFrame(update);
+        return;
+      }
+
+      // Game over screen.
+      if (gameOver) {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+        ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+        ctx.fillStyle = '#fff';
+        ctx.font = '40px Arial';
+        ctx.fillText('Game Over!', GAME_WIDTH / 4, GAME_HEIGHT / 2 - 20);
+        ctx.font = '20px Arial';
+        ctx.fillText('Score: ' + score, GAME_WIDTH / 3, GAME_HEIGHT / 2 + 20);
+        ctx.fillText('Press Space to Restart', GAME_WIDTH / 5, GAME_HEIGHT / 2 + 60);
+        requestAnimationFrame(update);
+        return;
+      }
+
+      // Update bird physics.
+      bird.velocity += bird.gravity;
+      bird.y += bird.velocity;
+      
+      // Draw the bird.
+      ctx.fillStyle = 'yellow';
+      ctx.beginPath();
+      ctx.arc(bird.x, bird.y, bird.radius, 0, Math.PI * 2);
+      ctx.fill();
+      
+      // Spawn pipes every 150 frames.
+      if (frameCount % 150 === 0) {
+        spawnPipe();
+      }
+      
+      // Update and draw pipes.
+      for (let i = 0; i < pipes.length; i++) {
+        let pipe = pipes[i];
+        pipe.x -= pipeSpeed;
+        
+        ctx.fillStyle = 'green';
+        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.topHeight);
+        ctx.fillRect(pipe.x, pipe.topHeight + gapHeight, pipeWidth, GAME_HEIGHT - (pipe.topHeight + gapHeight));
+        
+        if (checkCollision(pipe)) {
+          gameOver = true;
+        }
+        
+        if (!pipe.passed && pipe.x + pipeWidth < bird.x) {
+          score++;
+          pipe.passed = true;
+        }
+      }
+      
+      pipes = pipes.filter(pipe => pipe.x + pipeWidth > 0);
+      
+      if (bird.y + bird.radius > GAME_HEIGHT || bird.y - bird.radius < 0) {
+        gameOver = true;
+      }
+      
+      // Draw current score.
+      ctx.fillStyle = '#fff';
+      ctx.font = '30px Arial';
+      ctx.fillText(score, 10, 50);
+      
+      frameCount++;
+      requestAnimationFrame(update);
+    }
+
+    // Start game loop.
+    update();
+  </script>
+</body>
+</html>

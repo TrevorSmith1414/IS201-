@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pac-Man on the Run with Ghosts</title>
+  <style>
+    /* General page styling */
+    body {
+      background: #000; /* Black background for an arcade feel */
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #fff;
+    }
+    h1 {
+      margin-top: 20px;
+    }
+    /* Canvas styling */
+    #gameCanvas {
+      border: 2px solid #fff;
+      display: block;
+      margin-top: 20px;
+      background: #000;
+    }
+    /* Back link styling */
+    .back-link {
+      margin: 20px;
+      text-align: center;
+    }
+    .back-link a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .back-link a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pac-Man on the Run with Ghosts!</h1>
+  <!-- Game canvas -->
+  <canvas id="gameCanvas" width="600" height="200"></canvas>
+  
+  <!-- Back link to the scratch page -->
+  <div class="back-link">
+    <a href="scratch.html">← Back to Scratch</a>
+  </div>
+  
+  <script>
+    // Get canvas context
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Pac-Man object with properties for position, size, and mouth animation.
+    let pacman = {
+      x: -20,                     // Starting position off-screen on the left
+      y: canvas.height / 2,       // Vertically centered
+      radius: 20,
+      speed: 2,
+      mouthAngle: 0.2,            // Initial mouth gap (radian factor)
+      mouthOpenMax: 0.4,          // Maximum mouth opening
+      mouthClosing: false         // Flag to reverse mouth opening/closing
+    };
+
+    // Ghost objects – each ghost has a starting position, a base vertical position for oscillation, a speed, and a color.
+    let ghosts = [
+      { x: canvas.width + 40, y: canvas.height / 3, baseY: canvas.height / 3, radius: 20, speed: 1.5, color: 'red' },
+      { x: canvas.width + 100, y: 2 * canvas.height / 3, baseY: 2 * canvas.height / 3, radius: 20, speed: 2.0, color: 'cyan' }
+    ];
+
+    // Draw Pac-Man as a yellow pie shape with an animated mouth.
+    function drawPacman() {
+      ctx.beginPath();
+      let angle = pacman.mouthAngle * Math.PI;
+      ctx.moveTo(pacman.x, pacman.y);
+      ctx.arc(pacman.x, pacman.y, pacman.radius, angle, 2 * Math.PI - angle, false);
+      ctx.lineTo(pacman.x, pacman.y);
+      ctx.closePath();
+      ctx.fillStyle = "yellow";
+      ctx.fill();
+    }
+
+    // Update Pac-Man's position and animate his mouth.
+    function updatePacman() {
+      // Move Pac-Man rightward by speed.
+      pacman.x += pacman.speed;
+      // When he exits the right side, wrap around to the left.
+      if (pacman.x - pacman.radius > canvas.width) {
+        pacman.x = -pacman.radius;
+      }
+      
+      // Animate the mouth by oscillating the mouthAngle between set limits.
+      if (pacman.mouthClosing) {
+        pacman.mouthAngle -= 0.02;
+        if (pacman.mouthAngle <= 0.1) {
+          pacman.mouthClosing = false;
+        }
+      } else {
+        pacman.mouthAngle += 0.02;
+        if (pacman.mouthAngle >= pacman.mouthOpenMax) {
+          pacman.mouthClosing = true;
+        }
+      }
+    }
+
+    // Draw a ghost using an arc for the head, a flat bottom for the body, and eyes.
+    function drawGhost(ghost) {
+      ctx.beginPath();
+      // Draw ghost's head (arc from 180° to 0°)
+      ctx.arc(ghost.x, ghost.y, ghost.radius, Math.PI, 0, false);
+      // Draw the ghost's lower body as a rectangle-like shape.
+      ctx.lineTo(ghost.x + ghost.radius, ghost.y + ghost.radius);
+      ctx.lineTo(ghost.x - ghost.radius, ghost.y + ghost.radius);
+      ctx.closePath();
+      ctx.fillStyle = ghost.color;
+      ctx.fill();
+
+      // Draw eyes
+      ctx.fillStyle = '#fff';
+      let eyeOffsetX = ghost.radius * 0.4;
+      let eyeOffsetY = ghost.radius * 0.3;
+      let eyeRadius = ghost.radius * 0.3;
+      // Left eye
+      ctx.beginPath();
+      ctx.arc(ghost.x - eyeOffsetX, ghost.y - eyeOffsetY, eyeRadius, 0, Math.PI * 2);
+      ctx.fill();
+      // Right eye
+      ctx.beginPath();
+      ctx.arc(ghost.x + eyeOffsetX, ghost.y - eyeOffsetY, eyeRadius, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw pupils
+      ctx.fillStyle = '#000';
+      let pupilRadius = eyeRadius * 0.5;
+      ctx.beginPath();
+      ctx.arc(ghost.x - eyeOffsetX, ghost.y - eyeOffsetY, pupilRadius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(ghost.x + eyeOffsetX, ghost.y - eyeOffsetY, pupilRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Update ghost positions – ghosts move left and oscillate vertically.
+    function updateGhosts() {
+      ghosts.forEach(function(ghost) {
+        ghost.x -= ghost.speed;
+        // Vertical oscillation: adjust ghost.y based on a sine function.
+        ghost.y = ghost.baseY + Math.sin(ghost.x * 0.05) * 10;
+        // If a ghost moves completely off-screen to the left, reset it to the right.
+        if (ghost.x + ghost.radius < 0) {
+          ghost.x = canvas.width + ghost.radius;
+        }
+      });
+    }
+
+    // Draw all ghosts on the canvas.
+    function drawGhosts() {
+      ghosts.forEach(function(ghost) {
+        drawGhost(ghost);
+      });
+    }
+
+    // Clear the canvas before each frame update.
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // Main animation loop: update positions, render Pac-Man and ghosts, and request the next frame.
+    function animate() {
+      clearCanvas();
+      drawPacman();
+      drawGhosts();
+      updatePacman();
+      updateGhosts();
+      requestAnimationFrame(animate);
+    }
+    
+    // Start the animation.
+    animate();
+  </script>
+</body>
+</html>
